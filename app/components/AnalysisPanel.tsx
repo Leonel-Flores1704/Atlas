@@ -15,7 +15,7 @@ export function AnalysisPanel({ isExpanded, onToggleExpand }: AnalysisPanelProps
         <>
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold">Panel de Análisis</h2>
+            <h2 className="text-2xl font-bold">Dashboard</h2>
             <button 
               onClick={onToggleExpand}
               className="p-2 hover:bg-gray-800 rounded-lg transition-colors"

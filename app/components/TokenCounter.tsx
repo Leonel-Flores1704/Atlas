@@ -60,11 +60,6 @@ export function TokenCounter({ remainingTokens, totalTokens, isPlusUser = false 
         />
       </div>
 
-      {percentage < 20 && !isPlusUser && (
-        <p className="text-[10px] text-gray-500 mt-2">
-          Actualiza a Plus para tokens ilimitados
-        </p>
-      )}
     </div>
   );
 }

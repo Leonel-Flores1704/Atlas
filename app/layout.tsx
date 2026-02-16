@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'SciTech Agent - IA para Ciencia',
+  title: 'Atlas - IA para Ciencia',
   description: 'Asistente de investigación científica con IA',
 }
 

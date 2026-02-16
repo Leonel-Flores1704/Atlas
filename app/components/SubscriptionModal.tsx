@@ -61,7 +61,7 @@ export function SubscriptionModal({ isOpen, onClose }: SubscriptionModalProps) {
               <Zap className="w-5 h-5 text-black" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold">SciTech Agent Plus</h2>
+              <h2 className="text-2xl font-bold">Atlas Plus</h2>
               <p className="text-sm text-gray-400">Desbloquea todo el potencial</p>
             </div>
           </div>

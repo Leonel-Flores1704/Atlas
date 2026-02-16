@@ -1,11 +1,11 @@
 'use client';
 
-import { FlaskConical, Plus, Crown, MessageSquare, FolderPlus, Folder, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
+import { Plus, MessageSquare, FolderPlus, Folder, ChevronRight } from 'lucide-react';
 import { TokenCounter } from './TokenCounter';
 import { UserMenu } from './UserMenu';
 
 interface SidebarProps {
-  onOpenSubscription: () => void;
   remainingTokens: number;
   totalTokens: number;
   isPlusUser: boolean;
@@ -18,14 +18,14 @@ interface SidebarProps {
   onOpenAuth: () => void;
 }
 
-export function Sidebar({ onOpenSubscription, remainingTokens, totalTokens, isPlusUser, user, onLogout, onOpenAuth }: SidebarProps) {
+export function Sidebar({ remainingTokens, totalTokens, isPlusUser, user, onLogout, onOpenAuth }: SidebarProps) {
   return (
     <div className="w-[200px] bg-black border-r border-gray-800 flex flex-col p-4">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-1">
-          <FlaskConical className="w-5 h-5 text-teal-400" />
-          <h1 className="font-semibold">SciTech Agent</h1>
+          <Image src="/Atlas.svg" alt="Atlas logo" width={150} height={150} className="w-10 h-10" />
+          <h1 className="font-semibold">Atlas</h1>
         </div>
         <p className="text-xs text-gray-500">IA para Ciencia</p>
       </div>
@@ -52,15 +52,6 @@ export function Sidebar({ onOpenSubscription, remainingTokens, totalTokens, isPl
             totalTokens={totalTokens}
             isPlusUser={isPlusUser}
           />
-          {!isPlusUser && (
-            <button
-              onClick={onOpenSubscription}
-              className="mt-2 w-full flex items-center justify-center gap-2 border border-yellow-500/40 text-yellow-300 hover:bg-yellow-500/10 rounded-lg px-3 py-2 transition-colors"
-            >
-              <Crown className="w-4 h-4" />
-              <span className="text-sm">Mejorar a Plus</span>
-            </button>
-          )}
         </div>
       )}
 

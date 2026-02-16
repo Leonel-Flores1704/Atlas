@@ -2,14 +2,12 @@ import { useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { ChatArea } from './components/ChatArea';
 import { AnalysisPanel } from './components/AnalysisPanel'
-import { SubscriptionModal } from './components/SubscriptionModal';
 import { AuthModal } from './components/AuthModal';
 
 
 export default function App() {
     const [isDashboardExpanded, setIsDashboardExpanded] = useState(true);
     const [isChatMinimized, setIsChatMinimized] = useState(false);
-    const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
     // User session management
@@ -68,7 +66,6 @@ export default function App() {
         <div className="size-full flex bg-black text-white">
             {/* Left Sidebar */}
             <Sidebar
-                onOpenSubscription={() => setIsSubscriptionModalOpen(true)}
                 remainingTokens={remainingTokens}
                 totalTokens={totalTokens}
                 isPlusUser={user?.isPlusUser || false}
@@ -88,12 +85,6 @@ export default function App() {
             <AnalysisPanel
                 isExpanded={isDashboardExpanded}
                 onToggleExpand={toggleDashboardExpansion}
-            />
-
-            {/* Subscription Modal */}
-            <SubscriptionModal
-                isOpen={isSubscriptionModalOpen}
-                onClose={() => setIsSubscriptionModalOpen(false)}
             />
 
             {/* Auth Modal */}
