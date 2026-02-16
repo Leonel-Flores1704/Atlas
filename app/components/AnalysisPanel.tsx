@@ -1,6 +1,5 @@
 'use client';
 
-// import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ChevronRight, ChevronLeft, BookOpen, FileText, Quote, Zap, TrendingUp } from 'lucide-react';
 
 interface AnalysisPanelProps {
@@ -10,7 +9,7 @@ interface AnalysisPanelProps {
 
 export function AnalysisPanel({ isExpanded, onToggleExpand }: AnalysisPanelProps) {
   return (
-    <div className={`bg-black overflow-y-auto transition-all duration-300 ${isExpanded ? 'flex-1 p-6' : 'w-16'}`}>
+    <div className={`w-full h-full bg-black overflow-y-auto transition-all duration-300 ${isExpanded ? 'p-6' : ''}`}>
       {isExpanded ? (
         <>
           {/* Header */}

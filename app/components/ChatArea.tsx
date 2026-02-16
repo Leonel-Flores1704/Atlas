@@ -73,9 +73,7 @@ export function ChatArea({ isExpanded, isMinimized, onToggleMinimize }: ChatArea
   ];
 
   return (
-    <div className={`flex flex-col bg-black border-r border-gray-800 transition-all duration-300 ${
-      isMinimized ? 'w-16' : isExpanded ? 'flex-1' : 'w-[460px]'
-    }`}>
+    <div className={`w-full h-full flex flex-col bg-black border-r border-gray-800 transition-all duration-300`}>
       {isMinimized ? (
         <div className="flex flex-col items-center pt-4">
           <button 
@@ -108,7 +106,7 @@ export function ChatArea({ isExpanded, isMinimized, onToggleMinimize }: ChatArea
             {messages.map((msg) => (
               <div key={msg.id} className="flex gap-3">
                 <div className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center flex-shrink-0">
-                  <Image src="/globe.svg" alt="Agent" width={24} height={24} className="w-6 h-6 rounded-full" />
+                  <Image src="/Atlas.svg" alt="Agent" width={40} height={40} className="w-6 h-6 rounded-full" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm text-gray-300 leading-relaxed">{msg.text}</p>
@@ -180,9 +178,7 @@ export function ChatArea({ isExpanded, isMinimized, onToggleMinimize }: ChatArea
                 <User className="w-4 h-4 text-gray-500" />
               </button>
             </div>
-            <button className="mt-3 px-4 py-2 bg-teal-500 text-black rounded-lg text-sm font-medium hover:bg-teal-400 transition-colors">
-              hola
-            </button>
+            
           </div>
         </>
       )}

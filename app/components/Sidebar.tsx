@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Plus, MessageSquare, FolderPlus, Folder, ChevronRight } from 'lucide-react';
+import { Plus, MessageSquare, FolderPlus, Folder, ChevronRight, X } from 'lucide-react';
 import { TokenCounter } from './TokenCounter';
 import { UserMenu } from './UserMenu';
 
@@ -16,32 +16,28 @@ interface SidebarProps {
   } | null;
   onLogout: () => void;
   onOpenAuth: () => void;
+  onToggleSidebar: () => void;
 }
 
-export function Sidebar({ remainingTokens, totalTokens, isPlusUser, user, onLogout, onOpenAuth }: SidebarProps) {
+export function Sidebar({ remainingTokens, totalTokens, isPlusUser, user, onLogout, onOpenAuth, onToggleSidebar }: SidebarProps) {
   return (
-    <div className="w-[200px] bg-black border-r border-gray-800 flex flex-col p-4">
-      {/* Header */}
+    <div className="w-full h-full bg-black border-r border-gray-800 flex flex-col p-4">
+      {/* Header with Close Button */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 mb-1">
-          <Image src="/Atlas.svg" alt="Atlas logo" width={150} height={150} className="w-10 h-10" />
-          <h1 className="font-semibold">Atlas</h1>
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <Image src="/Atlas.svg" alt="Atlas logo" width={150} height={150} className="w-10 h-10" />
+            <h1 className="font-semibold">Atlas</h1>
+          </div>
+          <button
+            onClick={onToggleSidebar}
+            className="p-1.5 hover:bg-gray-800 rounded-lg transition-colors"
+            title="Ocultar sidebar"
+          >
+            <X className="w-4 h-4 text-gray-400" />
+          </button>
         </div>
         <p className="text-xs text-gray-500">IA para Ciencia</p>
-      </div>
-
-      {/* User Menu or Login Button */}
-      <div className="mb-4">
-        {user ? (
-          <UserMenu user={user} onLogout={onLogout} />
-        ) : (
-          <button
-            onClick={onOpenAuth}
-            className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 rounded-lg px-3 py-2.5 transition-colors"
-          >
-            <span className="text-sm">Iniciar Sesión</span>
-          </button>
-        )}
       </div>
 
       {/* Token Counter */}
@@ -87,7 +83,7 @@ export function Sidebar({ remainingTokens, totalTokens, isPlusUser, user, onLogo
       </div>
 
       {/* Chat History Section */}
-      <div className="overflow-y-auto">
+      <div className="mb-6 overflow-y-auto">
         <h3 className="text-xs text-gray-500 mb-3 uppercase tracking-wider">Historial de Chats</h3>
         <div className="space-y-2">
           <ChatHistoryItem 
@@ -111,6 +107,20 @@ export function Sidebar({ remainingTokens, totalTokens, isPlusUser, user, onLogo
             date="1 semana"
           />
         </div>
+      </div>
+
+      {/* User Menu or Login Button - AT BOTTOM */}
+      <div className="mt-auto pt-4 border-t border-gray-800">
+        {user ? (
+          <UserMenu user={user} onLogout={onLogout} />
+        ) : (
+          <button
+            onClick={onOpenAuth}
+            className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 rounded-lg px-3 py-2.5 transition-colors"
+          >
+            <span className="text-sm">Iniciar Sesión</span>
+          </button>
+        )}
       </div>
     </div>
   );
