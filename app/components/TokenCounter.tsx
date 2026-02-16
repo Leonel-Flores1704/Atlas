@@ -24,42 +24,41 @@ export function TokenCounter({ remainingTokens, totalTokens, isPlusUser = false 
   };
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-lg p-3">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <Coins className="w-4 h-4 text-gray-400" />
-          <span className="text-xs font-medium text-gray-400">Tokens disponibles</span>
+    <div className="bg-gray-900 border border-gray-800 rounded-lg p-2">
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-1.5">
+          <Coins className="w-3.5 h-3.5 text-gray-400" />
+          <span className="text-[11px] font-medium text-gray-400">Tokens disponibles</span>
         </div>
         {isPlusUser && (
-          <div className="flex items-center gap-1 bg-teal-500/20 px-2 py-0.5 rounded-full">
-            <Zap className="w-3 h-3 text-teal-400" />
-            <span className="text-[10px] font-semibold text-teal-400">PLUS</span>
+          <div className="flex items-center gap-0.5 bg-teal-500/20 px-1.5 py-0.5 rounded-full">
+            <Zap className="w-2.5 h-2.5 text-teal-400" />
+            <span className="text-[9px] font-semibold text-teal-400">PLUS</span>
           </div>
         )}
       </div>
       
-      <div className="flex items-end justify-between mb-2">
+      <div className="flex items-baseline justify-between mb-1.5">
         <div>
-          <span className={`text-2xl font-bold ${getTextColorClass()}`}>
+          <span className={`text-xl font-bold ${getTextColorClass()}`}>
             {remainingTokens.toLocaleString()}
           </span>
-          <span className="text-xs text-gray-500 ml-1">
-            / {totalTokens.toLocaleString()}
+          <span className="text-[10px] text-gray-500 ml-1">
+            / {(totalTokens / 1000).toFixed(0)}k
           </span>
         </div>
-        <span className="text-xs text-gray-500">
+        <span className="text-[10px] text-gray-500">
           {percentage.toFixed(0)}%
         </span>
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
+      <div className="w-full bg-gray-800 rounded-full h-1.5 overflow-hidden">
         <div
           className={`h-full ${getColorClass()} transition-all duration-300`}
           style={{ width: `${percentage}%` }}
         />
       </div>
-
     </div>
   );
 }

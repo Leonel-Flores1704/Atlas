@@ -7,15 +7,74 @@ import { AnalysisPanel } from './components/AnalysisPanel';
 import { AuthModal } from './components/AuthModal';
 import { Menu } from 'lucide-react';
 
+// Todos tus interfaces aquí
+interface Reference {
+  title: string;
+  authors: string;
+  journal: string;
+  year: number;
+  doi?: string;
+  url?: string;
+  abstract?: string;
+  citationCount?: number;
+}
+
+interface Message {
+  id: number;
+  sender: string;
+  text: string;
+  tokensUsed?: number;
+  references?: Reference[];
+  timestamp?: Date;
+}
+
+interface ChatHistory {
+  id: string;
+  title: string;
+  date: string;
+  messages: Message[];
+  createdAt: Date;
+}
+
+interface DashboardMetrics {
+  papersAnalyzed: number;
+  patents: number;
+  citationIndex: string;
+  technologicalImpact: number;
+  papersAnalyzedTrend?: 'up' | 'down';
+  patentsTrend?: 'up' | 'down';
+}
+
+// IMPORTANTE: export default DEBE estar aquí
 export default function Home() {
   const [isDashboardExpanded, setIsDashboardExpanded] = useState(true);
   const [isChatMinimized, setIsChatMinimized] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   
-  // Panel widths
-  const [sidebarWidth, setSidebarWidth] = useState(15); // percentage
-  const [chatWidth, setChatWidth] = useState(35); // percentage
+  const [sidebarWidth, setSidebarWidth] = useState(15);
+  const [chatWidth, setChatWidth] = useState(35);
+  
+  const [currentChatId, setCurrentChatId] = useState<string>('chat-1');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [chatHistory, setChatHistory] = useState<ChatHistory[]>([
+    {
+      id: 'chat-1',
+      title: 'Nuevo Chat',
+      date: 'Ahora',
+      messages: [],
+      createdAt: new Date(),
+    },
+  ]);
+
+  const [dashboardMetrics, setDashboardMetrics] = useState<DashboardMetrics>({
+    papersAnalyzed: 4821,
+    patents: 142,
+    citationIndex: '15.2k',
+    technologicalImpact: 8.9,
+    papersAnalyzedTrend: 'up',
+    patentsTrend: 'up',
+  });
   
   const containerRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef<'sidebar' | 'chat' | null>(null);
@@ -31,7 +90,132 @@ export default function Home() {
   });
   
   const [remainingTokens, setRemainingTokens] = useState(3750);
-  const totalTokens = user?.isPlusUser ? 100000 : 5000;
+  const getTotalTokens = (isPlusUser: boolean) => isPlusUser ? 100000 : 5000;
+  const totalTokens = getTotalTokens(user?.isPlusUser || false);
+
+  const calculateTokens = (text: string): number => {
+    return Math.ceil(text.length / 4);
+  };
+
+  const consumeTokens = (amount: number): boolean => {
+    if (remainingTokens >= amount) {
+      setRemainingTokens(prev => prev - amount);
+      return true;
+    }
+    return false;
+  };
+
+  const generateChatTitle = (firstMessage: string): string => {
+    const words = firstMessage.split(' ').slice(0, 5).join(' ');
+    return words.length > 40 ? words.substring(0, 40) + '...' : words;
+  };
+
+  const handleNewChat = () => {
+    if (messages.length > 0) {
+      setChatHistory(prev => 
+        prev.map(chat => 
+          chat.id === currentChatId 
+            ? { ...chat, messages: [...messages] }
+            : chat
+        )
+      );
+    }
+
+    const newChatId = `chat-${Date.now()}`;
+    const newChat: ChatHistory = {
+      id: newChatId,
+      title: 'Nuevo Chat',
+      date: 'Ahora',
+      messages: [],
+      createdAt: new Date(),
+    };
+
+    setChatHistory(prev => [newChat, ...prev]);
+    setCurrentChatId(newChatId);
+    setMessages([]);
+    
+    if (isChatMinimized) {
+      setIsChatMinimized(false);
+    }
+  };
+
+  const handleLoadChat = (chatId: string) => {
+    if (messages.length > 0) {
+      setChatHistory(prev => 
+        prev.map(chat => 
+          chat.id === currentChatId 
+            ? { ...chat, messages: [...messages] }
+            : chat
+        )
+      );
+    }
+
+    const selectedChat = chatHistory.find(chat => chat.id === chatId);
+    if (selectedChat) {
+      setCurrentChatId(chatId);
+      setMessages(selectedChat.messages);
+      
+      if (isChatMinimized) {
+        setIsChatMinimized(false);
+      }
+    }
+  };
+
+  const handleSendMessage = (messageText: string) => {
+    const userTokens = calculateTokens(messageText);
+    
+    if (!consumeTokens(userTokens)) {
+      alert('No tienes suficientes tokens. Por favor, actualiza tu plan.');
+      return;
+    }
+
+    const newMessage: Message = {
+      id: messages.length + 1,
+      sender: 'user',
+      text: messageText,
+      tokensUsed: userTokens,
+      timestamp: new Date(),
+    };
+
+    setMessages(prev => [...prev, newMessage]);
+
+    if (messages.length === 0) {
+      const newTitle = generateChatTitle(messageText);
+      setChatHistory(prev => 
+        prev.map(chat => 
+          chat.id === currentChatId 
+            ? { ...chat, title: newTitle }
+            : chat
+        )
+      );
+    }
+
+    setTimeout(() => {
+      const agentResponseText = 'Entendido. Estoy procesando tu consulta...';
+      const agentTokens = calculateTokens(agentResponseText);
+      
+      if (!consumeTokens(agentTokens)) {
+        return;
+      }
+
+      const agentMessage: Message = {
+        id: messages.length + 2,
+        sender: 'agent',
+        text: agentResponseText,
+        tokensUsed: agentTokens,
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, agentMessage]);
+    }, 1000);
+  };
+
+  const handleDeleteChat = (chatId: string) => {
+    setChatHistory(prev => prev.filter(chat => chat.id !== chatId));
+    if (chatId === currentChatId) {
+      handleNewChat();
+    }
+  };
 
   const toggleDashboardExpansion = () => {
     setIsDashboardExpanded(!isDashboardExpanded);
@@ -47,22 +231,25 @@ export default function Home() {
 
   const handleLogin = (email: string, _password: string) => {
     void _password;
-    setUser({
+    const isPlusUser = email.includes('plus');
+    const newUser = {
       name: email.split('@')[0],
       email: email,
-      isPlusUser: false,
-    });
+      isPlusUser: isPlusUser,
+    };
+    setUser(newUser);
     setIsAuthModalOpen(false);
-    setRemainingTokens(2500);
+    setRemainingTokens(isPlusUser ? 100000 : 5000);
   };
 
   const handleRegister = (email: string, _password: string, name: string) => {
     void _password;
-    setUser({
+    const newUser = {
       name: name,
       email: email,
       isPlusUser: false,
-    });
+    };
+    setUser(newUser);
     setIsAuthModalOpen(false);
     setRemainingTokens(5000);
   };
@@ -88,11 +275,9 @@ export default function Home() {
     const percentage = (mouseX / containerWidth) * 100;
 
     if (isDraggingRef.current === 'sidebar') {
-      // Sidebar limits: 12% - 25%
       const newWidth = Math.min(Math.max(percentage, 12), 25);
       setSidebarWidth(newWidth);
     } else if (isDraggingRef.current === 'chat') {
-      // Chat limits depend on sidebar width
       const minChatWidth = isChatMinimized ? 5 : 25;
       const maxChatWidth = isChatMinimized ? 5 : 60;
       const chatStartPercentage = isSidebarVisible ? sidebarWidth : 0;
@@ -117,7 +302,6 @@ export default function Home() {
     };
   }, [handleMouseMove, handleMouseUp]);
 
-  // Adjust widths when panels collapse/expand
   useEffect(() => {
     if (isChatMinimized) {
       setChatWidth(5);
@@ -129,9 +313,9 @@ export default function Home() {
   const effectiveSidebarWidth = isSidebarVisible ? sidebarWidth : 0;
   const dashboardWidth = 100 - effectiveSidebarWidth - chatWidth;
 
+  // IMPORTANTE: El return DEBE estar aquí
   return (
-    <div ref={containerRef} className="size-full flex bg-black text-white relative">
-      {/* Hamburger Button - Fixed position when sidebar is hidden */}
+    <div ref={containerRef} className="w-full h-screen flex bg-black text-white relative overflow-hidden">
       {!isSidebarVisible && (
         <button
           onClick={toggleSidebar}
@@ -142,10 +326,9 @@ export default function Home() {
         </button>
       )}
 
-      {/* Sidebar */}
       {isSidebarVisible && (
         <>
-          <div style={{ width: `${sidebarWidth}%` }} className="flex-shrink-0 transition-all duration-300">
+          <div style={{ width: `${sidebarWidth}%` }} className="h-full flex-shrink-0 transition-all duration-300">
             <Sidebar 
               remainingTokens={remainingTokens}
               totalTokens={totalTokens}
@@ -154,13 +337,17 @@ export default function Home() {
               onLogout={handleLogout}
               onOpenAuth={() => setIsAuthModalOpen(true)}
               onToggleSidebar={toggleSidebar}
+              onNewChat={handleNewChat}
+              chatHistory={chatHistory}
+              currentChatId={currentChatId}
+              onLoadChat={handleLoadChat}
+              onDeleteChat={handleDeleteChat}
             />
           </div>
 
-          {/* Resize Handle - Sidebar */}
           <div
             onMouseDown={(e) => handleMouseDown(e, 'sidebar')}
-            className="w-1 bg-transparent hover:bg-teal-500/50 transition-colors cursor-col-resize relative group flex-shrink-0"
+            className="w-1 h-full bg-transparent hover:bg-teal-500/50 transition-colors cursor-col-resize relative group flex-shrink-0"
           >
             <div className="absolute inset-y-0 -left-1 -right-1 flex items-center justify-center">
               <div className="w-1 h-16 bg-gray-700 rounded-full group-hover:bg-teal-500 transition-colors" />
@@ -169,20 +356,20 @@ export default function Home() {
         </>
       )}
 
-      {/* Chat Area */}
-      <div style={{ width: `${chatWidth}%` }} className="flex-shrink-0 transition-all duration-300">
+      <div style={{ width: `${chatWidth}%` }} className="h-full flex-shrink-0 transition-all duration-300">
         <ChatArea 
           isMinimized={isChatMinimized}
           onToggleMinimize={toggleChatMinimized}
-          isExpanded={!isDashboardExpanded} 
+          isExpanded={!isDashboardExpanded}
+          messages={messages}
+          onSendMessage={handleSendMessage}
         />
       </div>
 
-      {/* Resize Handle - Chat (only when chat is not minimized) */}
       {!isChatMinimized && (
         <div
           onMouseDown={(e) => handleMouseDown(e, 'chat')}
-          className="w-1 bg-transparent hover:bg-teal-500/50 transition-colors cursor-col-resize relative group flex-shrink-0"
+          className="w-1 h-full bg-transparent hover:bg-teal-500/50 transition-colors cursor-col-resize relative group flex-shrink-0"
         >
           <div className="absolute inset-y-0 -left-1 -right-1 flex items-center justify-center">
             <div className="w-1 h-16 bg-gray-700 rounded-full group-hover:bg-teal-500 transition-colors" />
@@ -190,15 +377,14 @@ export default function Home() {
         </div>
       )}
 
-      {/* Dashboard */}
-      <div style={{ width: `${dashboardWidth}%` }} className="flex-1 transition-all duration-300">
+      <div style={{ width: `${dashboardWidth}%` }} className="h-full flex-1 transition-all duration-300">
         <AnalysisPanel 
           isExpanded={isDashboardExpanded}
           onToggleExpand={toggleDashboardExpansion}
+          metrics={dashboardMetrics}
         />
       </div>
 
-      {/* Auth Modal */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
@@ -208,3 +394,4 @@ export default function Home() {
     </div>
   );
 }
+// IMPORTANTE: NO debe haber código después del cierre de la función
