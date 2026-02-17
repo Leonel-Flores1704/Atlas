@@ -1,13 +1,21 @@
 'use client';
 
-import { ChevronRight, ChevronLeft, BookOpen, FileText, Quote, Zap, TrendingUp } from 'lucide-react';
+import { ChevronRight, ChevronLeft, BookOpen, Quote, TrendingUp } from 'lucide-react';
+
+interface Metrics {
+  papersAnalyzed: number;
+  papersAnalyzedTrend?: 'up' | 'down';
+  citationIndex: string;
+  citationIndexTrend?: 'up' | 'down';
+}
 
 interface AnalysisPanelProps {
   isExpanded: boolean;
   onToggleExpand: () => void;
+  metrics: Metrics;
 }
 
-export function AnalysisPanel({ isExpanded, onToggleExpand }: AnalysisPanelProps) {
+export function AnalysisPanel({ isExpanded, onToggleExpand, metrics }: AnalysisPanelProps) {
   return (
     <div className={`w-full h-full bg-black overflow-y-auto transition-all duration-300 ${isExpanded ? 'p-6' : ''}`}>
       {isExpanded ? (
@@ -15,7 +23,7 @@ export function AnalysisPanel({ isExpanded, onToggleExpand }: AnalysisPanelProps
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold">Dashboard</h2>
-            <button 
+            <button
               onClick={onToggleExpand}
               className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
               title="Minimizar dashboard"
@@ -32,44 +40,24 @@ export function AnalysisPanel({ isExpanded, onToggleExpand }: AnalysisPanelProps
           </div>
 
           {/* Metrics Grid */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            {/* Papers Analizados */}
+          <div className="flex flex-col gap-4 mb-6">
             <MetricCard
               icon={<BookOpen className="w-5 h-5" />}
-              label="Papers Analizados"
-              value="4,821"
-              trend="up"
+              label="Documentos Analizados"
+              value={metrics.papersAnalyzed.toLocaleString()}
+              trend={metrics.papersAnalyzedTrend}
             />
-
-            {/* Patentes I+D */}
-            <MetricCard
-              icon={<FileText className="w-5 h-5" />}
-              label="Patentes I+D"
-              value="142"
-              trend="up"
-            />
-
-            {/* Índice de Citas */}
             <MetricCard
               icon={<Quote className="w-5 h-5" />}
               label="Índice de Citas"
-              value="15.2k"
-              subtext="Activar Windows"
-              additionalInfo="Ve a Configuración p..."
-            />
-
-            {/* Impacto Tecnológico */}
-            <MetricCard
-              icon={<Zap className="w-5 h-5" />}
-              label="Impacto Tecnológico"
-              value="8.9"
-              subtext="SISTEMA ACTIVO"
+              value={metrics.citationIndex}
+              trend={metrics.citationIndexTrend}
             />
           </div>
         </>
       ) : (
         <div className="flex flex-col items-center pt-4">
-          <button 
+          <button
             onClick={onToggleExpand}
             className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
             title="Expandir dashboard"
@@ -113,5 +101,3 @@ function MetricCard({ icon, label, value, trend, subtext, additionalInfo }: Metr
     </div>
   );
 }
-
-

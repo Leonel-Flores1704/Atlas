@@ -53,7 +53,7 @@ export default function Home() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   
   const [sidebarWidth, setSidebarWidth] = useState(15);
-  const [chatWidth, setChatWidth] = useState(35);
+  const [chatWidth, setChatWidth] = useState(65);
   
   const [currentChatId, setCurrentChatId] = useState<string>('chat-1');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -68,13 +68,12 @@ export default function Home() {
   ]);
 
   const [dashboardMetrics, setDashboardMetrics] = useState<DashboardMetrics>({
-    papersAnalyzed: 4821,
-    patents: 142,
-    citationIndex: '15.2k',
-    technologicalImpact: 8.9,
-    papersAnalyzedTrend: 'up',
-    patentsTrend: 'up',
+    papersAnalyzed: 0,
+    patents: 0,
+    citationIndex: '0',
+    technologicalImpact: 0,
   });
+  const confidenceScoresRef = useRef<number[]>([]);
   
   const containerRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef<'sidebar' | 'chat' | null>(null);
@@ -217,6 +216,34 @@ export default function Home() {
     }
   };
 
+  const handleResponseReceived = useCallback((response: { confidence: string; sources: { title: string; area: string | null; category: string | null; score: number }[] }) => {
+    const sources = response.sources || [];
+    const newPapers = sources.length;
+    const newPatents = sources.filter(s =>
+      s.category?.toLowerCase().includes('patente') ||
+      s.area?.toLowerCase().includes('i+d') ||
+      s.area?.toLowerCase().includes('innovación')
+    ).length;
+
+    const confidenceMap: Record<string, number> = { high: 10, medium: 7, low: 4, none: 1 };
+    const score = confidenceMap[response.confidence] || 0;
+    confidenceScoresRef.current.push(score);
+
+    const avgImpact = confidenceScoresRef.current.reduce((a, b) => a + b, 0) / confidenceScoresRef.current.length;
+
+    setDashboardMetrics(prev => {
+      const totalCitations = prev.papersAnalyzed + newPapers;
+      return {
+        papersAnalyzed: totalCitations,
+        patents: prev.patents + newPatents,
+        citationIndex: totalCitations >= 1000 ? `${(totalCitations / 1000).toFixed(1)}k` : totalCitations.toString(),
+        technologicalImpact: parseFloat(avgImpact.toFixed(1)),
+        papersAnalyzedTrend: newPapers > 0 ? 'up' : prev.papersAnalyzedTrend,
+        patentsTrend: newPatents > 0 ? 'up' : prev.patentsTrend,
+      };
+    });
+  }, []);
+
   const toggleDashboardExpansion = () => {
     setIsDashboardExpanded(!isDashboardExpanded);
   };
@@ -306,7 +333,7 @@ export default function Home() {
     if (isChatMinimized) {
       setChatWidth(5);
     } else {
-      setChatWidth(35);
+      setChatWidth(65);
     }
   }, [isChatMinimized]);
 
@@ -357,12 +384,11 @@ export default function Home() {
       )}
 
       <div style={{ width: `${chatWidth}%` }} className="h-full flex-shrink-0 transition-all duration-300">
-        <ChatArea 
+        <ChatArea
           isMinimized={isChatMinimized}
           onToggleMinimize={toggleChatMinimized}
           isExpanded={!isDashboardExpanded}
-          messages={messages}
-          onSendMessage={handleSendMessage}
+          onResponseReceived={handleResponseReceived}
         />
       </div>
 

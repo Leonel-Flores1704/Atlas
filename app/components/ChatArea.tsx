@@ -189,13 +189,6 @@ export function ChatArea({ isExpanded, isMinimized, onToggleMinimize, onResponse
                         <p className="text-sm leading-relaxed">{msg.text}</p>
                       </div>
 
-                      {/* Confidence Badge */}
-                      {!isUser && msg.confidence && (
-                        <span className={`inline-block mt-2 text-xs px-2 py-0.5 rounded border ${confidenceConfig[msg.confidence].color}`}>
-                          Confianza: {confidenceConfig[msg.confidence].label}
-                        </span>
-                      )}
-
                       {/* Sources Section */}
                       {!isUser && msg.sources && msg.sources.length > 0 && (
                         <div className="mt-2 bg-gray-900 border border-gray-800 rounded-lg p-3 w-full">
